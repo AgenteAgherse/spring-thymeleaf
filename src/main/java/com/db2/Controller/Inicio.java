@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.db2.Forms.FilterProducts;
+import com.db2.Forms.findUser;
 import com.db2.Model.Product;
 import com.db2.Repository.CategoriaRepository;
 import com.db2.Repository.ProductRepository;
@@ -32,6 +33,7 @@ public class Inicio {
         model.addAttribute("productos", productRepository.findWithStock().get());
         model.addAttribute("categorias", categoriaRepository.findAll());
         model.addAttribute("noDisponible", productRepository.findByNoStock().get());
+        model.addAttribute("findU", new findUser());
         return "index";
     }
 
@@ -40,6 +42,7 @@ public class Inicio {
 
         model.addAttribute("categorias", categoriaRepository.findAll());
         model.addAttribute("noDisponible", productRepository.findByNoStock().get());
+        model.addAttribute("findU", new findUser());
         Optional<List<Product>> productosFiltrados;
         String nombre = filtro.getNombre();
         if (filtro.getCategoria() == 0) {

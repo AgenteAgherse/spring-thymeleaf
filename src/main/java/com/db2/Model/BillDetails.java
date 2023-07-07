@@ -6,13 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "detallefactura")
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BillDetails {
 
     public BillDetails(Long idProducto, Long idFactura, Integer cantidad, Double total) {

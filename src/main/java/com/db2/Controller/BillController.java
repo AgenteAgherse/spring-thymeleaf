@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.db2.Forms.DetailBuy;
 import com.db2.Forms.DetailsCount;
 import com.db2.Model.Bill;
 import com.db2.Model.BillDetails;
@@ -101,14 +103,20 @@ public class BillController {
     //Método para publicar al usuario
     @PostMapping("/historialPagos/realizarCompra")
     public String registerUserAndBuy(@ModelAttribute User person, Model model) throws Exception { 
-        if (userRepository.existsById(person.getId())) {
-            //Opción para crear una nueva factura solamente.
-            addBillAndDetails(person, 1);
-            return "comprarealizada";
-        }
+        List<BillDetails> compra = new ArrayList<>();
+        if (userRepository.existsById(person.getId())) compra = addBillAndDetails(person, 1);
+        else compra = addBillAndDetails(person, 0);
+        
         //Opción para crear
-        addBillAndDetails(person, 0);
+        List<DetailBuy> detalles = new ArrayList<>();
+        for (BillDetails c: compra) {
+            Product producto = productRepository.findById(c.getIdProducto()).get();
+            detalles.add(new DetailBuy(producto.getNombre(), c.getCantidad(), (c.getTotal() / c.getCantidad()) ));
+        }
+
         deleteFileContent();
+        model.addAttribute("id", person.getId());
+        model.addAttribute("details", detalles);
         return "comprarealizada";
     }
 
@@ -129,11 +137,9 @@ public class BillController {
         }
 	}
 
-    private void addBillAndDetails(User person, int opcion) throws Exception {
+    private List<BillDetails> addBillAndDetails(User person, int opcion) throws Exception {
         ArrayList<DetailsCount> details = getAllCart();
-        if (opcion == 0) {
-            userRepository.save(person);
-        }
+        userRepository.save(person);
         System.out.println(details.size());
         Bill nuevaFactura = new Bill();
         nuevaFactura.setIdCliente(person.getId());
@@ -143,5 +149,6 @@ public class BillController {
         for (DetailsCount iterable : details) {
             billDetailsRepository.save(new BillDetails(iterable.getId(), nuevaFactura.getId(),iterable.getCount(), iterable.getVlrUnit()));
         }
+        return billDetailsRepository.getDetails(nuevaFactura.getId()).get();
     }
 }
